@@ -1,0 +1,49 @@
+version: '3'
+volumes:
+  psql-data:
+
+
+services:
+  web:
+    image: hitalos/laravel:latest
+    container_name: pge-php-app
+    ports:
+      - 8080:80
+    volumes:
+      - ./:/var/www
+    env_file:
+      - ./env
+    depends_on:
+      - postgres
+    networks:
+      app-env:
+
+
+  postgres:
+    image: postgres:9.6
+    container_name: pge-postgres
+    env_file:
+      - ./env
+    volumes:
+      - ./postgres/script/:/docker-entrypoint-initdb.d
+      - psql-data:/var/lib/posgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      app-env:
+      interface:
+
+
+networks:
+  app-env:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 20.2.0.0/24
+  interface:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.2.0.0/24
